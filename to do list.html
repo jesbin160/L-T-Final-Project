@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>To-Do List - Bootstrap & jQuery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+  
+  <style>
+    body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.todo-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  border-radius: 15px;
+}
+
+.card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 15px 15px 0 0 !important;
+  padding: 1.5rem;
+}
+
+.task-item {
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.task-item:hover {
+  background-color: #f8f9fa;
+  border-left-color: #667eea;
+}
+
+.task-item.completed .task-text {
+  text-decoration: line-through;
+  color: #6c757d;
+}
+
+.task-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.btn-filter {
+  transition: all 0.3s ease;
+}
+
+.btn-filter.active {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.delete-btn {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.task-item:hover .delete-btn {
+  opacity: 1;
+}
+
+.stats-badge {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.task-item.new-task {
+  animation: slideIn 0.3s ease;
+}
+
+   
+  </style>
+</head>
+<body>
+ <div class="container">
+    <div class="todo-container">
+      <!-- Header with Stats -->
+      <div class="text-center mb-4">
+        <h1 class="text-white mb-3">
+          <i class="bi bi-check2-square me-2"></i>
+          To-Do List
+        </h1>
+        <div class="d-flex justify-content-center gap-3">
+          <span class="badge stats-badge text-white px-3 py-2">
+            <i class="bi bi-list-task me-1"></i>
+            Total: <span id="totalTasks">0</span>
+          </span>
+          <span class="badge stats-badge text-white px-3 py-2">
+            <i class="bi bi-check-circle me-1"></i>
+            Completed: <span id="completedTasks">0</span>
+          </span>
+          <span class="badge stats-badge text-white px-3 py-2">
+            <i class="bi bi-clock me-1"></i>
+            Active: <span id="activeTasks">0</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Main Card -->
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">
+            <i class="bi bi-calendar-check me-2"></i>
+            Manage Your Tasks
+          </h4>
+        </div>
+        
+        <div class="card-body">
+          <!-- Input Section -->
+          <div class="input-group mb-4">
+            <input 
+              type="text" 
+              id="taskInput" 
+              class="form-control form-control-lg" 
+              placeholder="What needs to be done?"
+              autocomplete="off"
+               />
+            <button class="btn btn-primary btn-lg" id="addTaskBtn" type="button">
+              <i class="bi bi-plus-circle me-2"></i>
+              Add Task
+            </button>
+          </div>
+
+          <!-- Filter Buttons -->
+          <div class="btn-group w-100 mb-4" role="group">
+            <button type="button" class="btn btn-outline-primary btn-filter active" data-filter="all">
+              <i class="bi bi-list-ul me-2"></i>
+              All Tasks
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-filter" data-filter="active">
+              <i class="bi bi-hourglass-split me-2"></i>
+              Active
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-filter" data-filter="completed">
+              <i class="bi bi-check2-all me-2"></i>
+              Completed
+            </button>
+          </div>
+
+          <!-- Task List -->
+          <div id="taskList" class="list-group">
+            <!-- Tasks will be added here dynamically -->
+          </div>
+
+          <!-- Empty State -->
+          <div id="emptyState" class="text-center py-5" style="display: none;">
+            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">No tasks yet. Add one above!</p>
+          </div>
+
+          <!-- Clear Completed Button -->
+          <div class="d-flex justify-content-between align-items-center mt-4">
+            <button class="btn btn-outline-danger btn-sm" id="clearCompletedBtn">
+              <i class="bi bi-trash me-1"></i>
+              Clear Completed
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="clearAllBtn">
+              <i class="bi bi-x-circle me-1"></i>
+              Clear All
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center mt-4">
+        <p class="text-white-50">
+          <i class="bi bi-heart-fill text-danger"></i>
+          Built with Bootstrap 5 & jQuery
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Custom JavaScript with jQuery -->
+  <script>
+    $(document).ready(function() {
+      let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      let currentFilter = 'all';
+
+      // Initialize
+      renderTasks();
+      updateStats();
+      // Add task event handlers
+      $('#addTaskBtn').on('click', addTask);
+      $('#taskInput').on('keypress', function(e) {
+        if (e.which === 13) {
+          addTask();
+        }
+      });
+
+      // Filter buttons
+      $('.btn-filter').on('click', function() {
+        $('.btn-filter').removeClass('active');
+        $(this).addClass('active');
+        currentFilter = $(this).data('filter');
+        renderTasks();
+      });
+
+      // Clear buttons
+      $('#clearCompletedBtn').on('click', function() {
+        if (confirm('Clear all completed tasks?')) {
+          tasks = tasks.filter(task => !task.completed);
+          saveTasks();
+          renderTasks();
+          showToast('Completed tasks cleared', 'success');
+        }
+      });
+
+      $('#clearAllBtn').on('click', function() {
+        if (confirm('Clear all tasks?')) {
+          tasks = [];
+          saveTasks();
+          renderTasks();
+          showToast('All tasks cleared', 'warning');
+        }
+      });
+
+      function addTask() {
+        const text = $('#taskInput').val().trim();
+        if (text === '') {
+          showToast('Please enter a task', 'warning');
+          $('#taskInput').focus();
+          return;
+        }
+        const newTask = {
+          id: Date.now(),
+          text: text,
+          completed: false,
+          createdAt: new Date().toISOString()
+        };
+
+        tasks.unshift(newTask);
+        saveTasks();
+        $('#taskInput').val('');
+        renderTasks();
+        showToast('Task added successfully', 'success');
+      }
+
+      function toggleTask(id) {
+        const task = tasks.find(t => t.id === id);
+        if (task) {
+          task.completed = !task.completed;
+          saveTasks();
+          renderTasks();
+          updateStats();
+        }
+      }
+
+      function deleteTask(id) {
+        tasks = tasks.filter(t => t.id !== id);
+        saveTasks();
+        renderTasks();
+        showToast('Task deleted', 'info');
+      }
+
+      function editTask(id) {
+        const task = tasks.find(t => t.id === id);
+        if (task) {
+          const newText = prompt('Edit task:', task.text);
+          if (newText && newText.trim() !== '') {
+            task.text = newText.trim();
+            saveTasks();
+            renderTasks();
+            showToast('Task updated', 'success');
+            }
+        }
+      }
+
+      function renderTasks() {
+        const $taskList = $('#taskList');
+        $taskList.empty();
+
+        let filteredTasks = tasks;
+        if (currentFilter === 'active') {
+          filteredTasks = tasks.filter(t => !t.completed);
+        } else if (currentFilter === 'completed') {
+          filteredTasks = tasks.filter(t => t.completed);
+        }
+
+        if (filteredTasks.length === 0) {
+          $('#emptyState').show();
+          $taskList.hide();
+        } else {
+          $('#emptyState').hide();
+          $taskList.show();
+
+          filteredTasks.forEach(task => {
+            const taskDate = new Date(task.createdAt).toLocaleDateString();
+            const $taskItem = $(`
+              <div class="list-group-item task-item ${task.completed ? 'completed' : ''}" data-id="${task.id}">
+                <div class="d-flex align-items-center">
+                  <input 
+                    type="checkbox" 
+                    class="form-check-input task-checkbox me-3" 
+                    ${task.completed ? 'checked' : ''}
+                  />
+                  <div class="flex-grow-1">
+                    <div class="task-text fw-semibold">${task.text}</div>
+                    <small class="text-muted">
+                      <i class="bi bi-calendar2 me-1"></i>
+                      ${taskDate}
+                    </small>
+                  </div>
+                  <div class="btn-group btn-group-sm delete-btn" role="group">
+                    <button class="btn btn-outline-primary edit-task">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger delete-task">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `);
+             // Event handlers for each task
+            $taskItem.find('.task-checkbox').on('click', function(e) {
+              e.stopPropagation();
+              toggleTask(task.id);
+            });
+
+            $taskItem.find('.edit-task').on('click', function(e) {
+              e.stopPropagation();
+              editTask(task.id);
+            });
+
+            $taskItem.find('.delete-task').on('click', function(e) {
+              e.stopPropagation();
+              deleteTask(task.id);
+            });
+
+            $taskList.append($taskItem);
+          });
+        }
+
+        updateStats();
+      }
+
+      function updateStats() {
+        const completed = tasks.filter(t => t.completed).length;
+        const active = tasks.filter(t => !t.completed).length;
+        
+        $('#totalTasks').text(tasks.length);
+        $('#completedTasks').text(completed);
+        $('#activeTasks').text(active);
+      }
+
+      function saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        updateStats();
+      }
+
+      function showToast(message, type = 'info') {
+        const toastHtml = `
+          <div class="toast align-items-center text-bg-${type} border-0" role="alert">
+            <div class="d-flex">
+              <div class="toast-body">
+                ${message}
+              </div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+          </div>
+        `;
+        
+        const $toastContainer = $('#toastContainer');
+        if ($toastContainer.length === 0) {
+          $('body').append('<div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>');
+        }
+        
+        const $toast = $(toastHtml);
+        $('#toastContainer').append($toast);
+        
+        const toast = new bootstrap.Toast($toast[0]);
+        toast.show();
+        
+        $toast.on('hidden.bs.toast', function() {
+          $(this).remove();
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
