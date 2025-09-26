@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Recipe Book</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #fdfdfd;
+      color: #333;
+    }
+    header {
+      text-align: center;
+      padding: 30px 20px 10px;
+    }
+    header h1 {
+      color: #e67e22;
+      margin-bottom: 10px;
+    }
+    header p {
+      color: #666;
+    }
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px;
+    }
+    .search-container input {
+      width: 350px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    .recipe-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+    }
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #fff;
+    }
+    .easy { background: #27ae60; }
+    .medium { background: #f39c12; }
+    .hard { background: #c0392b; }
+
+    .card-body {
+      padding: 15px;
+    }
+    .card-body h3 {
+      margin: 0 0 8px;
+    }
+    .card-body p {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+    .meta {
+      display: flex;
+      gap: 15px;
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 10px;
+    }
+    .tag {
+      display: inline-block;
+      background: #f1f1f1;
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Recipe Book</h1>
+    <p>Discover delicious recipes from around the world. Filter by cuisine, difficulty, or search for specific ingredients.</p>
+  </header>
+
+  <div class="search-container">
+    <input type="text" id="search" placeholder="Search recipes, ingredients, or cuisine..." onkeyup="filterRecipes()">
+  </div>
+
+  <div id="recipeList" class="recipe-list"></div>
+
+<script>
+  const recipes = [
+    {
+      title: "Caesar Salad",
+      description: "Fresh romaine lettuce with creamy Caesar dressing and parmesan",
+      image: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Caesar_salad_%281%29.jpg",
+      cookTime: 15,
+      servings: 2,
+      difficulty: "Easy",
+      category: "Salad",
+      cuisine: "American"
+    },
+    {
+      title: "Chocolate Cake",
+      description: "Rich and moist chocolate cake with decadent ganache frosting",
+      image: "https://upload.wikimedia.org/wikipedia/commons/6/60/Chocolate_cake_with_chocolate_frosting.jpg",
+      cookTime: 75,
+      servings: 8,
+      difficulty: "Hard",
+      category: "Dessert",
+      cuisine: "International"
+    },
+    {
+      title: "Grilled Salmon",
+      description: "Perfectly seasoned salmon fillet grilled to perfection",
+      image: "https://upload.wikimedia.org/wikipedia/commons/3/35/Salmon_grilled.jpg",
+      cookTime: 22,
+      servings: 2,
+      difficulty: "Easy",
+      category: "Main Course",
+      cuisine: "International"
+    },
+    {
+      title: "Margherita Pizza",
+      description: "Classic Italian pizza with fresh basil, mozzarella, and tomato sauce",
+      image: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Margherita_Pizza.jpg",
+      cookTime: 15,
+      servings: 4,
+      difficulty: "Medium",
+      category: "Main Course",
+      cuisine: "Italian"
+    },
+    {
+      title: "Pancakes",
+      description: "Fluffy pancakes topped with butter and maple syrup",
+      image: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Stack_of_pancakes.jpg",
+      cookTime: 20,
+      servings: 3,
+      difficulty: "Easy",
+      category: "Dessert",
+      cuisine: "American"
+    },
+    {
+      title: "Sushi Rolls",
+      description: "Traditional Japanese sushi rolls with rice, fish, and vegetables",
+      image: "https://upload.wikimedia.org/wikipedia/commons/6/60/Sushi_platter.jpg",
+      cookTime: 40,
+      servings: 4,
+      difficulty: "Hard",
+      category: "Main Course",
+      cuisine: "Japanese"
+    }
+  ];
+
+  function renderRecipes(list) {
+    const container = document.getElementById("recipeList");
+    container.innerHTML = "";
+    list.forEach(r => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${r.image}" alt="${r.title}">
+        <span class="badge ${r.difficulty.toLowerCase()}">${r.difficulty}</span>
+        <div class="card-body">
+          <h3>${r.title}</h3>
+          <p>${r.description}</p>
+          <div class="meta">
+            <span>⏱ ${r.cookTime}m</span>
+            <span>👥 ${r.servings}</span>
+            <span>🌍 ${r.cuisine}</span>
+          </div>
+          <div class="tag">${r.category}</div>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function filterRecipes() {
+    const term = document.getElementById("search").value.toLowerCase();
+    const filtered = recipes.filter(r =>
+      r.title.toLowerCase().includes(term) ||
+      r.description.toLowerCase().includes(term) ||
+      r.cuisine.toLowerCase().includes(term) ||
+      r.category.toLowerCase().includes(term) ||
+      r.difficulty.toLowerCase().includes(term)
+    );
+    renderRecipes(filtered);
+  }
+
+  renderRecipes(recipes);
+</script>
+</body>
+</html>
